@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DbMigration.Domains;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace BackEnd.Controllers;
 
@@ -54,5 +55,52 @@ public class CustomerController : Controller
     {
       return Json(output);
     }
+  }
+
+  [HttpPatch("{id}")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  /*
+    [
+      {
+        "op": "replace",
+        "path": "/City",
+        "value": "Melbourne"
+      },
+      {
+        "op": "replace",
+        "path": "/Region",
+        "value": null
+      }
+    ]
+  */
+  public async Task<IActionResult> Patch(int id, [FromBody]JsonPatchDocument<Customer> update)
+  {
+    var rec = await _entities.Customers.FindAsync(id);
+
+    if (rec == null)
+    {
+      return NotFound();
+    }
+
+    update.ApplyTo(rec);
+    await _entities.SaveChangesAsync();
+
+    return NoContent();
+  }
+
+  [HttpDelete("{id}")]
+  public async Task<IActionResult> Delete(int id)
+  {
+    var rec = await _entities.Customers.FindAsync(id);
+
+    if (rec == null)
+    {
+      return NotFound();
+    }
+
+    _entities.Remove(rec);
+    await _entities.SaveChangesAsync();
+
+    return NoContent();
   }
 }

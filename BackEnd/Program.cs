@@ -6,9 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDatabase();
 
 builder.Services.AddControllers()
-  .AddJsonOptions(o => {
-    o.JsonSerializerOptions.PropertyNamingPolicy = null;
-    o.JsonSerializerOptions.DictionaryKeyPolicy = null;
+  // .AddJsonOptions(o => {
+  //   o.JsonSerializerOptions.PropertyNamingPolicy = null;
+  //   o.JsonSerializerOptions.DictionaryKeyPolicy = null;
+  // });
+  .AddNewtonsoftJson(o => {
+    o.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
   });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
