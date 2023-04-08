@@ -1,12 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Navigation() {
   return (
     <>
     <ul>
-      <li><a href='/'>Home</a></li>
-      <li><a href='WeatherForecast'>Weater Forecast (Not Implemented)</a></li>
-      <li><a href='Customer'>Customer</a></li>
+      <li><Link to='/'>Home</Link></li>
+      <li><Link to='WeatherForecast'>Weater Forecast (Not Implemented)</Link></li>
+      <li><Link to='Customer'>Customer</Link></li>
     </ul>
     <hr />
     </>
