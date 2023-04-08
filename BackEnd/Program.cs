@@ -4,6 +4,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDatabase();
+builder.Services.AddCors(options => {
+  // options.AddPolicy(
+  //   "AllowFrontend", // To be used in combination with [EnableCors("AllowFrontend")].
+  //   policy => {
+  //     policy.WithOrigins("https://localhost:5005");
+  //   }
+  // );
+  options.AddDefaultPolicy(
+    policy => {
+      policy.WithOrigins("https://localhost:5005");
+      // .AllowAnyHeader()
+      // .AllowAnyMethod();
+    }
+  );
+});
 
 builder.Services.AddControllers()
   // .AddJsonOptions(o => {
@@ -26,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
