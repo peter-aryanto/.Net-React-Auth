@@ -5,10 +5,10 @@ const controllers = {
 };
 
 const fetchOptions = {
-  mode: 'cors',
-  // headers: {
-  //   'ContentType': 'application/json'
-  // }
+  // mode: 'cors',
+  headers: {
+    "Content-Type": "application/json"
+  },
   signal: controllers.abortController
 };
 
@@ -26,14 +26,43 @@ const read = async function (domain, id) {
 
   let json;
   try {
-    setupAbortController();
-    const response = await fetch(backendUrl + `/${resource}`, fetchOptions);
-
+    const response = await sendRequest('GET', resource);
     json = await readJson(response);
   }
   catch (e) {
     const resourceInfoString = getResourceInfoString(domain, id);
     json = createErrorJson(`Cannot read data from ${resourceInfoString}.`);
+  }
+
+  return json;
+};
+
+const update = async function (domain, id, payload) {
+  if (!validateParam(domain)) {
+    return;
+  }
+
+  let resource = `${domain}`;
+
+  const hasId = validateParam(id);
+  if (hasId) {
+    resource += `/${id}`;
+  }
+
+  if (!payload || !Object.keys(payload)?.length) {
+    return;
+  }
+
+  const dotNetPatchRequestPayload = createDotNetPatchRequestPayload(payload);
+
+  let json;
+  try {
+    const response = await sendRequest('PATCH', resource, dotNetPatchRequestPayload);
+    json = await readJson(response);
+  }
+  catch (e) {
+    const resourceInfoString = getResourceInfoString(domain, id);
+    json = createErrorJson(`Cannot update ${resourceInfoString}.`);
   }
 
   return json;
@@ -46,6 +75,30 @@ const validateParam = function (param) {
 
   return isValid;
 };
+
+const sendRequest = async function (
+  method,
+  resource,
+  payload
+) {
+  if (!controllers.abortController) {
+    controllers.abortController = new AbortController();
+  }
+
+  fetchOptions.method = method;
+
+  fetchOptions.body = null;
+  if (payload) {
+    fetchOptions.body = JSON.stringify(payload);
+  }
+
+  const response = await fetch(
+    backendUrl + `/${resource}`,
+    fetchOptions
+  );
+
+  return response;
+}
 
 const readJson = async function (response) {
   let json;
@@ -78,13 +131,31 @@ const getResourceInfoString = function (domain, id) {
   return resourceInfoString;
 };
 
-const setupAbortController = function () {
-  controllers.abortController = new AbortController();
-  return controllers.abortController;
+const createDotNetPatchRequestElement = (propName, propValue) => {
+  const output = {
+    'op': 'replace',
+    'path': `/${propName}`,
+    'value': propValue
+  };
+
+  return output;
+};
+
+const createDotNetPatchRequestPayload = (payload) => {
+  const output = [];
+
+  Object.keys(payload).forEach((k) => {
+    const element = createDotNetPatchRequestElement(k, payload[k]);
+    output.push(element);
+  });
+
+  return output;
 };
 
 const abortRequest = function () {
   controllers.abortController.abort();
+  // controllers.abortController = new AbortController();
+  controllers.abortController = null;
 }
 
-export { read, abortRequest };
+export { read, update, abortRequest };
