@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-function CustomerDetails({ customer, updateRequestTimestamp, submitUpdate }) {
+function CustomerDetails({ customer, updateRequestTimestamp, submitUpdate, hasUpdateError }) {
   const contactNameRef = useRef();
   const cityRef = useRef();
   const countryRef = useRef();
@@ -8,10 +8,16 @@ function CustomerDetails({ customer, updateRequestTimestamp, submitUpdate }) {
   const updateRef = useRef({});
 
   useEffect(() => {
+    if (hasUpdateError) {
+      return;
+    }
+
     contactNameRef.current = customer.ContactName;
     cityRef.current = customer.City;
     countryRef.current = customer.Country;
     phoneRef.current.value = customer.Phone;
+
+    updateRef.current = {};
   }, [customer]);
 
   useEffect(() => {
@@ -49,6 +55,7 @@ function CustomerDetails({ customer, updateRequestTimestamp, submitUpdate }) {
           <input name='Phone' ref={phoneRef} defaultValue={customer.Phone} type='text' onChange={handleChange} />
         </span>
       </div>
+      {hasUpdateError && <div><p>Update failed!</p></div>}
       <br />
     </div>
     <div></div>

@@ -104,7 +104,12 @@ const readJson = async function (response) {
   let json;
 
   if (response.ok) {
-    json = await response.json();
+    if (response.status === 204) {
+      json = {};
+    }
+    else {
+      json = await response.json();
+    }
   }
   else {
     json = { error: 'Cannot read response.' };
