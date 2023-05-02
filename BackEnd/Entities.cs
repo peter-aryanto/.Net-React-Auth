@@ -62,7 +62,7 @@ namespace BackEnd
     {
       sc.AddDbContext<Entities>(options =>
           // options.UseSqlServer()
-          options.UseSqlServer("Server=10.252.150.206;Database=BackEnd;User Id=sa;Password=5SNMsmZrqgvTso8OUpJ2;Encrypt=true;trustServerCertificate=true;")
+          options.UseSqlServer("Server=10.252.150.147;Database=BackEnd;User Id=sa;Password=fWRjFFTLjccQW95lcZON;Encrypt=true;trustServerCertificate=true;")
         );
       return sc;
     }
