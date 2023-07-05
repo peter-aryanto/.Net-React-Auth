@@ -83,6 +83,13 @@ public class CustomerController : Controller
     }
 
     update.ApplyTo(rec);
+    /*
+    update.ApplyTo(rec, ModelState);
+    if (!ModelState)
+    {
+      return BadRequest(ModelState)
+    }
+    */
     await _entities.SaveChangesAsync();
 
     return NoContent();
