@@ -20,6 +20,7 @@ const Pages = () => {
    * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
    */
   const { instance } = useMsal();
+
   useEffect(() => {
       const callbackId = instance.addEventCallback((event) => {
           if (
@@ -96,6 +97,10 @@ const Pages = () => {
   const activeAccount = instance.getActiveAccount();
   console.log(activeAccount);
 
+  const logout = () => {
+    instance.logoutRedirect({ postLogoutRedirectUri: '/' });
+  }
+
   return (
     <MsalAuthenticationTemplate
       interactionType={InteractionType.Redirect} 
@@ -104,6 +109,7 @@ const Pages = () => {
     {
       activeAccount &&
       <BrowserRouter>
+        <button onClick={logout}>Logout</button>
         <Header />
         <Navigation />
         <Routes>
