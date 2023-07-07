@@ -1,8 +1,22 @@
 using BackEnd;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+  .AddMicrosoftIdentityWebApi(
+    options => {
+      builder.Configuration.Bind("AzureADB2C", options);
+    },
+    options => {
+      builder.Configuration.Bind("AzureADB2C", options);
+    }
+  );
+
 builder.Services.AddDatabase();
 builder.Services.AddCors(options => {
   // options.AddPolicy(
@@ -46,6 +60,7 @@ app.UseCors();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

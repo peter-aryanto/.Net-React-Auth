@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { read, update } from './Backend';
 import CustomerDetails from './CustomerDetails';
+import { useMsal } from '@azure/msal-react';
+import { tokenRequest as baseTokenRequest } from '../authConfig';
 
 const domain = 'Customer';
 
@@ -8,6 +10,7 @@ function Customer() {
   const isMounted = useRef(false);
   const [customers, setCustomers] = useState([]);
   const [updateErrors, setUpdateErrors] = useState({});
+  const { instance } = useMsal();
 
   useEffect(() => {
     isMounted.current = true;
@@ -22,7 +25,11 @@ function Customer() {
   }, []);
 
   const getCustomers = useCallback(async () => {
-    const json = await read(domain);
+    const activeAccount = instance.getActiveAccount();
+    const tokenRequest = {...baseTokenRequest};
+    tokenRequest.account = {...activeAccount};
+
+    const json = await read(domain, instance, tokenRequest);
 
     if (!isMounted.current) {
       return;

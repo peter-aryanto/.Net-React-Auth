@@ -12,7 +12,43 @@ const fetchOptions = {
   signal: controllers.abortController
 };
 
-const read = async function (domain, id) {
+const getAccessToken = async (msalInstance, tokenRequest) => {
+  if (!msalInstance) {
+    return null;
+  }
+
+  const cannotGetAccessTokenErrorMsg = "Cannot get access token.";
+
+  return msalInstance.acquireTokenSilent(tokenRequest)
+  .then((response) => {
+      // In case the response from B2C server has an empty accessToken field
+      // throw an error to initiate token acquisition
+      if (!response.accessToken || response.accessToken === "") {
+          // throw new msal.InteractionRequiredAuthError;
+          throw new Error(cannotGetAccessTokenErrorMsg)
+      }
+      return response;
+  })
+  .catch(error => {
+      console.log("Silent token acquisition fails. Acquiring token using popup. \n", error);
+      // if (error instanceof msal.InteractionRequiredAuthError) {
+      if (error?.message === cannotGetAccessTokenErrorMsg) {
+          // fallback to interaction when silent call fails
+          return msalInstance.acquireTokenPopup(tokenRequest)
+              .then(response => {
+                  console.log(response);
+                  return response;
+              }).catch(error => {
+                  console.log(error);
+              });
+      } else {
+          console.log(error);
+      }
+  });
+};
+
+// const read = async function (domain, id) {
+const read = async function (domain, instance, tokenRequest, id) {
   if (!validateParam(domain)) {
     return;
   }
@@ -26,7 +62,9 @@ const read = async function (domain, id) {
 
   let json;
   try {
-    const response = await sendRequest('GET', resource);
+    const tokenResponse = await getAccessToken(instance, tokenRequest);
+    const accessToken = tokenResponse?.accessToken;
+    const response = await sendRequest('GET', resource, accessToken);
     json = await readJson(response);
   }
   catch (e) {
@@ -79,13 +117,18 @@ const validateParam = function (param) {
 const sendRequest = async function (
   method,
   resource,
-  payload
+  accessToken,
+  payload,
 ) {
   if (!controllers.abortController) {
     controllers.abortController = new AbortController();
   }
 
   fetchOptions.method = method;
+
+  if (accessToken) {
+    fetchOptions.headers.Authorization = 'Bearer ' + accessToken;
+  }
 
   fetchOptions.body = null;
   if (payload) {

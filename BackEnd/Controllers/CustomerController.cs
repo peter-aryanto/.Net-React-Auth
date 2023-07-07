@@ -2,11 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using DbMigration.Domains;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
+// using Microsoft.Identity.Web.Resource;
 
 namespace BackEnd.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
+// [RequiredScope("backend")]
 // public class CustomerController : ControllerBase
 public class CustomerController : Controller
 {
