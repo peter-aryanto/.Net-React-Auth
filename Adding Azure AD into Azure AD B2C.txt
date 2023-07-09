@@ -1,0 +1,2 @@
+Ref About Adding Azure AD into Azure AD B2C:
+https://learn.microsoft.com/en-us/azure/active-directory-b2c/identity-provider-azure-ad-single-tenant?pivots=b2c-user-flow
